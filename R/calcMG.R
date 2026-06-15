@@ -28,7 +28,7 @@
                                  RC1 = NULL, RC2 = NULL, RC3 = NULL, RC4 = NULL,
                                  RC5 = NULL, RC6 = NULL, RC7 = NULL, RC8 = NULL,
                                  residual_covariances = NULL,
-                                 missing = NULL, upload = NULL,
+                                 missing = NULL,
                                  ...) {
     is_non_empty <- function(x) {
         !is.null(x) && length(x) > 0
@@ -76,7 +76,6 @@
     input$Scale <- match.arg(Scale, c("N", "L"))
     input$Reps <- Reps
     input$missing <- missing
-    input$upload <- upload
 
     rc_args <- list(
         RC1 = RC1, RC2 = RC2, RC3 = RC3, RC4 = RC4,
@@ -170,7 +169,7 @@ calcMG <- function(data, loadings = NULL,
                    RC1 = NULL, RC2 = NULL, RC3 = NULL, RC4 = NULL,
                    RC5 = NULL, RC6 = NULL, RC7 = NULL, RC8 = NULL,
                    residual_covariances = NULL,
-                   missing = NULL, upload = NULL,
+                   missing = NULL,
                    ...) {
     input <- .build_calc_mg_input(
         loadings = loadings,
@@ -186,7 +185,7 @@ calcMG <- function(data, loadings = NULL,
         RC1 = RC1, RC2 = RC2, RC3 = RC3, RC4 = RC4,
         RC5 = RC5, RC6 = RC6, RC7 = RC7, RC8 = RC8,
         residual_covariances = residual_covariances,
-        missing = missing, upload = upload,
+        missing = missing,
         ...
     )
 
@@ -299,7 +298,6 @@ calcMgInner <- function(data, input) {
     }
 
     # Fit model in lavaan
-    str(data)
     a <- lavaan::cfa(data = data, model = model, estimator = input$est, orthogonal = COR, std.lv = TRUE, missing = FIML)
     lav0 <- lavaan::partable(a)
     df0 <- a@test$standard$df
@@ -1724,7 +1722,6 @@ calcMgInner <- function(data, input) {
 
         return(round(table, 4))
     }
-
     Results <- true_fit_MI(model = model, reps = as.numeric(input$Reps), n0 = n0)
 
 
@@ -1809,59 +1806,4 @@ calcMgInner <- function(data, input) {
         plot = if (exists("PD")) PD else NULL,
         outputs = output,
     )
-}
-
-
-#' Print a Dynamic Measurement Invariance result
-#'
-#' @param x An object of class `MgDynamic`.
-#' @param ... Additional arguments, currently unused.
-#'
-#' @export
-print.MgDynamic <- function(x, ...) {
-    cat("MgDynamic result\n")
-    cat("Estimator:", x$input$est, "\n")
-    cat("Factors:", x$input$Factors, "\n")
-
-    if (!is.null(x$input$Group)) {
-        cat("Group variable:", x$input$Group, "\n")
-    }
-
-    if (!is.null(x$input$Inv)) {
-        inv_label <- switch(as.character(x$input$Inv),
-            "1" = "Metric",
-            "2" = "Metric and scalar",
-            "3" = "Metric, scalar and strict",
-            as.character(x$input$Inv)
-        )
-        cat("Invariance level:", inv_label, "\n")
-    }
-
-    if (!is.null(x$input$Reps)) {
-        cat("Simulation repetitions:", x$input$Reps, "\n")
-    }
-
-    cat("\nAvailable components:\n")
-    components <- c(
-        "fit_indices", "differences", "decision", "dmacs",
-        "cutoffs", "parameter_tables", "plot", "outputs", "download"
-    )
-    available <- components[!vapply(x[components], is.null, logical(1))]
-    if (length(available) > 0) {
-        cat(" ", paste(available, collapse = ", "), "\n", sep = "")
-    } else {
-        cat(" none\n")
-    }
-
-    if (!is.null(x$fit_indices)) {
-        cat("\nFit indices:\n")
-        print(x$fit_indices)
-    }
-
-    if (!is.null(x$cutoffs)) {
-        cat("\nDynamic cutoffs:\n")
-        print(x$cutoffs)
-    }
-
-    invisible(x)
 }
