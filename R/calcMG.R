@@ -88,8 +88,6 @@
 }
 
 
-
-
 .new_MgDynamic <- function(input, model, fit,
                            fit_indices = NULL,
                            differences = NULL,
@@ -152,7 +150,6 @@
 #' @param ResCov Optional list of residual covariances. Each element should be a
 #'   character vector of length two naming the two item residuals to correlate,
 #'   for example `list(c("Item1_F1", "Item1_F2"))`.
-#' @param residual_covariances Deprecated alias for `ResCov`. Currently unused.
 #' @param missing Optional missing-data indicator retained for compatibility with
 #'   the original Shiny app workflow.
 #' @param ... Additional values passed to the internal input list.
@@ -231,7 +228,6 @@ calcMG <- function(data, loadings = NULL,
         est = est, Group = Group,
         Inv = Inv, Scale = Scale, Reps = Reps,
         ResCov = ResCov,
-        residual_covariances = residual_covariances,
         missing = missing,
         ...
     )
@@ -1774,7 +1770,7 @@ calcMgInner <- function(data, input) {
 
 
     output$DFI <- Results
-    # I did not found any hint for decision.    #o utput$Dec <- Decision
+    # I did not found any hint for decision.    #o utut$Dec <- Decision
 
 
     PD <- semPlot::semPaths(a, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
