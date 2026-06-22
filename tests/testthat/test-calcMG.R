@@ -26,7 +26,7 @@ example_dmi_data <- function(n = 300) {
 }
 
 
-test_that("GitHub example returns an MgDynamic result", {
+test_that("Normal run - uncorrelated factors", {
     testthat::skip_if_not_installed("lavaan")
     testthat::skip_if_not_installed("dplyr")
     testthat::skip_if_not_installed("tidyr")
@@ -59,7 +59,157 @@ test_that("GitHub example returns an MgDynamic result", {
         "outputs", "download"
     ))
     env <- new.env(parent = emptyenv())
-    appResults <- load(test_path("testdata", "results.rdata"), envir = env)
+    appResults <- load(test_path("testdata", "run1.rdata"), envir = env)
+    expect_equal(result$cutoffs, env$Results)
+})
+
+test_that("Normal run - uncorrelated factors", {
+    testthat::skip_if_not_installed("lavaan")
+    testthat::skip_if_not_installed("dplyr")
+    testthat::skip_if_not_installed("tidyr")
+    testthat::skip_if_not_installed("purrr")
+    testthat::skip_if_not_installed("MASS")
+    testthat::skip_if_not_installed("GenOrd")
+    testthat::skip_if_not_installed("semPlot")
+
+
+    df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
+    result <- calcMG(
+        data = df,
+        loadings = list(
+            c("Item1_F1", "Item2_F1", "Item3_F1"),
+            c("Item1_F2", "Item2_F2", "Item3_F2")
+        ),
+        Group = "F3",
+        Reps = 1000,
+        FacCor = FALSE,
+        Inv = 3
+    )
+
+    expect_s3_class(result, "MgDynamic")
+    expect_equal(result$input$Factors, 2L)
+    expect_equal(result$input$Group, "F3")
+    expect_true(is.character(result$model))
+    expect_named(result, c(
+        "input", "call", "model", "fit", "fit_indices", "differences",
+        "decision", "dmacs", "cutoffs", "parameter_tables", "plot",
+        "outputs", "download"
+    ))
+    env <- new.env(parent = emptyenv())
+    appResults <- load(test_path("testdata", "run1.rdata"), envir = env)
+    expect_equal(result$cutoffs, env$Results)
+})
+
+test_that("Fast run - correlated factors", {
+    testthat::skip_if_not_installed("lavaan")
+    testthat::skip_if_not_installed("dplyr")
+    testthat::skip_if_not_installed("tidyr")
+    testthat::skip_if_not_installed("purrr")
+    testthat::skip_if_not_installed("MASS")
+    testthat::skip_if_not_installed("GenOrd")
+    testthat::skip_if_not_installed("semPlot")
+
+
+    df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
+    result <- calcMG(
+        data = df,
+        loadings = list(
+            c("Item1_F1", "Item2_F1", "Item3_F1"),
+            c("Item1_F2", "Item2_F2", "Item3_F2")
+        ),
+        Group = "F3",
+        Inv = 3,
+        Reps = 100
+    )
+
+    expect_s3_class(result, "MgDynamic")
+    expect_equal(result$input$Factors, 2L)
+    expect_equal(result$input$Group, "F3")
+    expect_true(is.character(result$model))
+    expect_named(result, c(
+        "input", "call", "model", "fit", "fit_indices", "differences",
+        "decision", "dmacs", "cutoffs", "parameter_tables", "plot",
+        "outputs", "download"
+    ))
+    env <- new.env(parent = emptyenv())
+    appResults <- load(test_path("testdata", "run2.rdata"), envir = env)
+    expect_equal(result$cutoffs, env$Results)
+})
+
+test_that("Fast run - correlated factors + correllated error terms", {
+    testthat::skip_if_not_installed("lavaan")
+    testthat::skip_if_not_installed("dplyr")
+    testthat::skip_if_not_installed("tidyr")
+    testthat::skip_if_not_installed("purrr")
+    testthat::skip_if_not_installed("MASS")
+    testthat::skip_if_not_installed("GenOrd")
+    testthat::skip_if_not_installed("semPlot")
+
+
+    df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
+    result <- calcMG(
+        data = df,
+        loadings = list(
+            c("Item1_F1", "Item2_F1", "Item3_F1"),
+            c("Item1_F2", "Item2_F2", "Item3_F2")
+        ),
+        Group = "F3",
+        Inv = 3,
+        Reps = 100,
+        ResCov = list(c("Item1_F1", "Item1_F2"))
+    )
+
+    expect_s3_class(result, "MgDynamic")
+    expect_equal(result$input$Factors, 2L)
+    expect_equal(result$input$Group, "F3")
+    expect_true(is.character(result$model))
+    expect_named(result, c(
+        "input", "call", "model", "fit", "fit_indices", "differences",
+        "decision", "dmacs", "cutoffs", "parameter_tables", "plot",
+        "outputs", "download"
+    ))
+    env <- new.env(parent = emptyenv())
+    appResults <- load(test_path("testdata", "run3.rdata"), envir = env)
+    expect_equal(result$cutoffs, env$Results)
+})
+
+test_that("Fast run - correlated factors + two correllated error terms", {
+    testthat::skip_if_not_installed("lavaan")
+    testthat::skip_if_not_installed("dplyr")
+    testthat::skip_if_not_installed("tidyr")
+    testthat::skip_if_not_installed("purrr")
+    testthat::skip_if_not_installed("MASS")
+    testthat::skip_if_not_installed("GenOrd")
+    testthat::skip_if_not_installed("semPlot")
+
+
+    df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
+    result <- calcMG(
+        data = df,
+        loadings = list(
+            c("Item1_F1", "Item2_F1", "Item3_F1"),
+            c("Item1_F2", "Item2_F2", "Item3_F2")
+        ),
+        Group = "F3",
+        Inv = 3,
+        Reps = 100,
+        ResCov = list(
+            c("Item1_F1", "Item1_F2"),
+            c("Item2_F1", "Item3_F2")
+        )
+    )
+
+    expect_s3_class(result, "MgDynamic")
+    expect_equal(result$input$Factors, 2L)
+    expect_equal(result$input$Group, "F3")
+    expect_true(is.character(result$model))
+    expect_named(result, c(
+        "input", "call", "model", "fit", "fit_indices", "differences",
+        "decision", "dmacs", "cutoffs", "parameter_tables", "plot",
+        "outputs", "download"
+    ))
+    env <- new.env(parent = emptyenv())
+    appResults <- load(test_path("testdata", "run4.rdata"), envir = env)
     expect_equal(result$cutoffs, env$Results)
 })
 

@@ -16,30 +16,16 @@
 
 
 .build_calc_mg_input <- function(loadings = NULL,
-                                 Factor1 = NULL, Factor2 = NULL,
-                                 Factor3 = NULL, Factor4 = NULL,
-                                 Factor5 = NULL, Factor6 = NULL,
-                                 Factor7 = NULL, Factor8 = NULL,
-                                 Factors = NULL,
                                  GenFac = FALSE, FacCor = TRUE,
                                  est = "ML", Group = NULL,
                                  Inv = 1, Scale = "N", Reps = 500,
                                  ResCov = NULL,
-                                 RC1 = NULL, RC2 = NULL, RC3 = NULL, RC4 = NULL,
-                                 RC5 = NULL, RC6 = NULL, RC7 = NULL, RC8 = NULL,
-                                 residual_covariances = NULL,
                                  missing = NULL,
                                  ...) {
     is_non_empty <- function(x) {
         !is.null(x) && length(x) > 0
     }
 
-    factor_args <- list(
-        Factor1 = Factor1, Factor2 = Factor2,
-        Factor3 = Factor3, Factor4 = Factor4,
-        Factor5 = Factor5, Factor6 = Factor6,
-        Factor7 = Factor7, Factor8 = Factor8
-    )
 
     if (!is.null(loadings)) {
         if (!is.list(loadings)) {
@@ -47,7 +33,7 @@
         }
         factor_values <- loadings
     } else {
-        factor_values <- factor_args[vapply(factor_args, is_non_empty, logical(1))]
+        stop("A list with which items loads on which factor is requiered.", call. = FALSE)
     }
 
     if (length(factor_values) > 8) {
@@ -63,7 +49,7 @@
         }
     }
 
-    input$Factors <- if (is.null(Factors)) length(factor_values) else as.integer(Factors)
+    input$Factors <- length(factor_values)
     if (is.na(input$Factors) || input$Factors < 1 || input$Factors > 8) {
         stop("Factors must be an integer between 1 and 8.", call. = FALSE)
     }
@@ -77,20 +63,11 @@
     input$Reps <- Reps
     input$missing <- missing
 
-    rc_args <- list(
-        RC1 = RC1, RC2 = RC2, RC3 = RC3, RC4 = RC4,
-        RC5 = RC5, RC6 = RC6, RC7 = RC7, RC8 = RC8
-    )
+    rc_args <- ResCov
     rc_values <- rc_args[vapply(rc_args, is_non_empty, logical(1))]
 
-    if (!is.null(residual_covariances)) {
-        if (!is.list(residual_covariances)) {
-            residual_covariances <- list(residual_covariances)
-        }
-        rc_values <- residual_covariances
-    }
 
-    input$ResCov <- if (is.null(ResCov)) length(rc_values) else as.integer(ResCov)
+    input$ResCov <- length(rc_values)
     if (is.na(input$ResCov) || input$ResCov < 0) {
         stop("ResCov must be a non-negative integer.", call. = FALSE)
     }
@@ -145,6 +122,90 @@
 }
 
 
+#' Calculate Dynamic Measurement Invariance Cutoffs
+#'
+#' `calcMG()` estimates a two-group confirmatory factor analysis model and
+#' simulates model-specific cutoff values for measurement invariance tests.
+#' The function was adapted from the Dynamic Measurement Invariance Shiny app
+#' and returns the results as an object of class `MgDynamic`.
+#'
+#' @param data A `data.frame` containing the observed item variables and the
+#'   grouping variable.
+#' @param loadings A list describing the measurement model. Each element must be
+#'   a character vector with the item names loading on one latent factor. Up to
+#'   eight factors are supported.
+#' @param GenFac Logical. If `TRUE`, a general higher-order factor is added for
+#'   models with more than two factors. Defaults to `FALSE`.
+#' @param FacCor Logical. If `TRUE`, latent factors are allowed to correlate. If
+#'   `FALSE`, factors are estimated as orthogonal. Defaults to `TRUE`.
+#' @param est Character string specifying the lavaan estimator. Currently used
+#'   values are `"ML"` and `"MLR"`.
+#' @param Group Character string naming the grouping variable in `data`.
+#' @param Inv Integer indicating the highest invariance level to evaluate:
+#'   `1` for metric, `2` for metric and scalar, and `3` for metric, scalar, and
+#'   strict invariance.
+#' @param Scale Character string indicating the response scale. Use `"N"` for
+#'   continuous normally distributed indicators and `"L"` for Likert/ordinal
+#'   indicators treated as continuous.
+#' @param Reps Number of simulation replications used to estimate the dynamic
+#'   cutoff values. Larger values give more stable cutoffs but increase runtime.
+#' @param ResCov Optional list of residual covariances. Each element should be a
+#'   character vector of length two naming the two item residuals to correlate,
+#'   for example `list(c("Item1_F1", "Item1_F2"))`.
+#' @param residual_covariances Deprecated alias for `ResCov`. Currently unused.
+#' @param missing Optional missing-data indicator retained for compatibility with
+#'   the original Shiny app workflow.
+#' @param ... Additional values passed to the internal input list.
+#'
+#' @return An object of class `MgDynamic`, a list containing the generated
+#'   lavaan model syntax, fitted lavaan object, model fit indices, fit-index
+#'   differences, D-MACS values, simulated cutoffs, parameter tables, plot object,
+#'   and the original input settings.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#' n <- 300
+#'
+#' Faktor1 <- rnorm(n)
+#' Faktor2 <- rnorm(n)
+#'
+#' df <- data.frame(
+#'     Item1_F1 = 0.8 * Faktor1 + rnorm(n, 0, 0.5),
+#'     Item2_F1 = 0.7 * Faktor1 + rnorm(n, 0, 0.5),
+#'     Item3_F1 = 0.9 * Faktor1 + rnorm(n, 0, 0.5),
+#'     Item1_F2 = 0.8 * Faktor2 + rnorm(n, 0, 0.5),
+#'     Item2_F2 = 0.7 * Faktor2 + rnorm(n, 0, 0.5),
+#'     Item3_F2 = 0.9 * Faktor2 + rnorm(n, 0, 0.5),
+#'     F3 = rep(c(0, 1), each = n / 2)
+#' )
+#'
+#' result <- calcMG(
+#'     data = df,
+#'     loadings = list(
+#'         c("Item1_F1", "Item2_F1", "Item3_F1"),
+#'         c("Item1_F2", "Item2_F2", "Item3_F2")
+#'     ),
+#'     Group = "F3",
+#'     Inv = 3,
+#'     Reps = 100
+#' )
+#'
+#' print(result)
+#'
+#' result_with_residual_covariance <- calcMG(
+#'     data = df,
+#'     loadings = list(
+#'         c("Item1_F1", "Item2_F1", "Item3_F1"),
+#'         c("Item1_F2", "Item2_F2", "Item3_F2")
+#'     ),
+#'     Group = "F3",
+#'     Inv = 3,
+#'     Reps = 100,
+#'     ResCov = list(c("Item1_F1", "Item1_F2"))
+#' )
+#' }
+#'
 #' @importFrom lavaan anova cfa fitMeasures fitmeasures lavInspect lavNames parameterEstimates partable lav_partable_npar
 #' @importFrom dplyr arrange desc filter group_by mutate pull reframe select
 #' @importFrom tidyr nest unite
@@ -157,33 +218,19 @@
 #' @export
 
 calcMG <- function(data, loadings = NULL,
-                   Factor1 = NULL, Factor2 = NULL,
-                   Factor3 = NULL, Factor4 = NULL,
-                   Factor5 = NULL, Factor6 = NULL,
-                   Factor7 = NULL, Factor8 = NULL,
-                   Factors = NULL,
                    GenFac = FALSE, FacCor = TRUE,
                    est = "ML", Group = NULL,
                    Inv = 1, Scale = "N", Reps = 500,
                    ResCov = NULL,
-                   RC1 = NULL, RC2 = NULL, RC3 = NULL, RC4 = NULL,
-                   RC5 = NULL, RC6 = NULL, RC7 = NULL, RC8 = NULL,
                    residual_covariances = NULL,
                    missing = NULL,
                    ...) {
     input <- .build_calc_mg_input(
         loadings = loadings,
-        Factor1 = Factor1, Factor2 = Factor2,
-        Factor3 = Factor3, Factor4 = Factor4,
-        Factor5 = Factor5, Factor6 = Factor6,
-        Factor7 = Factor7, Factor8 = Factor8,
-        Factors = Factors,
         GenFac = GenFac, FacCor = FacCor,
         est = est, Group = Group,
         Inv = Inv, Scale = Scale, Reps = Reps,
         ResCov = ResCov,
-        RC1 = RC1, RC2 = RC2, RC3 = RC3, RC4 = RC4,
-        RC5 = RC5, RC6 = RC6, RC7 = RC7, RC8 = RC8,
         residual_covariances = residual_covariances,
         missing = missing,
         ...
@@ -1725,10 +1772,6 @@ calcMgInner <- function(data, input) {
     Results <- true_fit_MI(model = model, reps = as.numeric(input$Reps), n0 = n0)
 
 
-    if (exists("session", inherits = TRUE)) {
-        updateTabsetPanel(session, inputId = "Tabs", selected = "DMI Table")
-    }
-
 
     output$DFI <- Results
     # I did not found any hint for decision.    #o utput$Dec <- Decision
@@ -1799,7 +1842,6 @@ calcMgInner <- function(data, input) {
         fit = a,
         fit_indices = if (exists("Ind")) Ind else NULL,
         differences = if (exists("Dif")) Dif else NULL,
-        decision = if (exists("Decision")) Decision else NULL,
         dmacs = if (exists("D_new")) D_new else NULL,
         cutoffs = if (exists("Results")) Results else NULL,
         parameter_tables = parameter_tables,
