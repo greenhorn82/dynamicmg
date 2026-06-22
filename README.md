@@ -2,13 +2,17 @@
 
 `dynamicMg` provides an R function interface for dynamic measurement invariance cutoffs for dependent groups.
 
+ <!-- badges: start -->
+  [![R-CMD-check](https://github.com/greenhorn82/dynamicMg/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/greenhorn82/dynamicMg/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
+
 ## Installation
 
 You can install the development version from GitHub with `devtools`:
 
 ```r
 install.packages("devtools")
-devtools::install_github("greenhorn82/dynamicMg")
+devtools::install_github("greenhorn82/dynamicmg")
 ```
 
 ## Background
