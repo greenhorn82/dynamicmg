@@ -15,7 +15,6 @@ calcMG(
   Scale = "N",
   Reps = 500,
   ResCov = NULL,
-  residual_covariances = NULL,
   missing = NULL,
   ...
 )

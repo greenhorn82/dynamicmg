@@ -219,7 +219,6 @@ calcMG <- function(data, loadings = NULL,
                    est = "ML", Group = NULL,
                    Inv = 1, Scale = "N", Reps = 500,
                    ResCov = NULL,
-                   residual_covariances = NULL,
                    missing = NULL,
                    ...) {
     input <- .build_calc_mg_input(
@@ -1766,7 +1765,6 @@ calcMgInner <- function(data, input) {
         return(round(table, 4))
     }
     Results <- true_fit_MI(model = model, reps = as.numeric(input$Reps), n0 = n0)
-
 
 
     output$DFI <- Results
