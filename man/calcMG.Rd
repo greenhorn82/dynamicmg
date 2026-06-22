@@ -54,8 +54,6 @@ cutoff values. Larger values give more stable cutoffs but increase runtime.}
 character vector of length two naming the two item residuals to correlate,
 for example \code{list(c("Item1_F1", "Item1_F2"))}.}
 
-\item{residual_covariances}{Deprecated alias for \code{ResCov}. Currently unused.}
-
 \item{missing}{Optional missing-data indicator retained for compatibility with
 the original Shiny app workflow.}
 
