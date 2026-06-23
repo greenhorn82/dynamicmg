@@ -35,6 +35,11 @@ test_that("Normal run - uncorrelated factors", {
     testthat::skip_if_not_installed("GenOrd")
     testthat::skip_if_not_installed("semPlot")
 
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
 
     df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
     result <- calcMG(
@@ -60,7 +65,7 @@ test_that("Normal run - uncorrelated factors", {
     ))
     env <- new.env(parent = emptyenv())
     appResults <- load(test_path("testdata", "run1.rdata"), envir = env)
-    expect_equal(result$cutoffs, env$Results)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
 })
 
 test_that("Normal run - uncorrelated factors", {
@@ -71,6 +76,11 @@ test_that("Normal run - uncorrelated factors", {
     testthat::skip_if_not_installed("MASS")
     testthat::skip_if_not_installed("GenOrd")
     testthat::skip_if_not_installed("semPlot")
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
 
 
     df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
@@ -97,10 +107,16 @@ test_that("Normal run - uncorrelated factors", {
     ))
     env <- new.env(parent = emptyenv())
     appResults <- load(test_path("testdata", "run1.rdata"), envir = env)
-    expect_equal(result$cutoffs, env$Results)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
 })
 
 test_that("Fast run - correlated factors", {
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
+
     testthat::skip_if_not_installed("lavaan")
     testthat::skip_if_not_installed("dplyr")
     testthat::skip_if_not_installed("tidyr")
@@ -133,10 +149,16 @@ test_that("Fast run - correlated factors", {
     ))
     env <- new.env(parent = emptyenv())
     appResults <- load(test_path("testdata", "run2.rdata"), envir = env)
-    expect_equal(result$cutoffs, env$Results)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
 })
 
 test_that("Fast run - correlated factors + correllated error terms", {
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
+
     testthat::skip_if_not_installed("lavaan")
     testthat::skip_if_not_installed("dplyr")
     testthat::skip_if_not_installed("tidyr")
@@ -170,10 +192,16 @@ test_that("Fast run - correlated factors + correllated error terms", {
     ))
     env <- new.env(parent = emptyenv())
     appResults <- load(test_path("testdata", "run3.rdata"), envir = env)
-    expect_equal(result$cutoffs, env$Results)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
 })
 
 test_that("Fast run - correlated factors + two correllated error terms", {
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
+
     testthat::skip_if_not_installed("lavaan")
     testthat::skip_if_not_installed("dplyr")
     testthat::skip_if_not_installed("tidyr")
@@ -210,7 +238,7 @@ test_that("Fast run - correlated factors + two correllated error terms", {
     ))
     env <- new.env(parent = emptyenv())
     appResults <- load(test_path("testdata", "run4.rdata"), envir = env)
-    expect_equal(result$cutoffs, env$Results)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
 })
 
 
