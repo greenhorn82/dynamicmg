@@ -340,7 +340,10 @@ calcMgInner <- function(data, input) {
     }
 
     # Fit model in lavaan
-    a <- lavaan::cfa(data = data, model = model, estimator = input$est, orthogonal = COR, std.lv = TRUE, missing = FIML)
+    a <- lavaan::cfa(
+        data = data, model = model,
+        estimator = input$est, orthogonal = COR, std.lv = TRUE, missing = FIML
+    )
     lav0 <- lavaan::partable(a)
     df0 <- a@test$standard$df
     imp0 <- a@implied$cov[[1]]
@@ -1771,8 +1774,8 @@ calcMgInner <- function(data, input) {
     # I did not found any hint for decision.    #o utut$Dec <- Decision
 
 
-    PD <- semPlot::semPaths(a, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
-    output$PD <- semPlot::semPaths(a, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
+    #  PD <- semPlot::semPaths(a, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
+    #  output$PD <- semPlot::semPaths(a, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
 
     if (input$Inv == 1) {
         MI <- "Metric"

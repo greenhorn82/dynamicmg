@@ -4,7 +4,7 @@
 #' @param ... Additional arguments, currently unused.
 #'
 #' @export
-print.MgDynamic <- function(x, ...) {
+print.MgDynamic <- function(x, showPlot = TRUE, ...) {
     cat("MgDynamic result\n")
     cat("Estimator:", x$input$est, "\n")
     cat("Factors:", x$input$Factors, "\n")
@@ -42,11 +42,45 @@ print.MgDynamic <- function(x, ...) {
     if (!is.null(x$fit_indices)) {
         cat("\nFit indices:\n")
         print(x$fit_indices)
+        cat("\nΔFit indices:\n ")
+        print(diff(x$fit_indices))
     }
 
     if (!is.null(x$cutoffs)) {
         cat("\nDynamic cutoffs:\n")
         print(x$cutoffs)
+    }
+
+    if (!(is.null(x$cutoffs) | is.null(x$fit_indices))) {
+        cat("\nComparision\n")
+        x$cutoffs |>
+            as.data.frame() |>
+            tibble::rownames_to_column(var = "measure") |>
+            mutate(measure = stringr::str_replace(measure, "Δ", "")) -> dataCutoff
+
+        diff(x$fit_indices) |>
+            t() |>
+            as.data.frame() |>
+            tibble::rownames_to_column(var = "measure") |>
+            dplyr::filter(measure %in% dataCutoff$measure) -> dataFit
+
+        dataCutoff |>
+            dplyr::filter(measure %in% dataFit$measure) -> dataCutoff
+
+        print(dataFit |>
+            select(measure) |>
+            dplyr::bind_cols(
+                dataFit |>
+                    select(-measure) |>
+                    dplyr::mutate(across(
+                        dplyr::everything(),
+                        ~ dplyr::if_else(.x > dataCutoff[[dplyr::cur_column()]], "above", "below")
+                    ))
+            ))
+    }
+
+    if (showPlot) {
+        semPlot::semPaths(x$fit, residuals = FALSE, intercepts = FALSE, thresholds = FALSE)
     }
 
     invisible(x)

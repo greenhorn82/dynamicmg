@@ -22,5 +22,7 @@ Imports:
  purrr,
  rmarkdown, 
  semPlot, 
- tidyr
+ tidyr,
+ tibble,
+ stringr
 LazyData: true

@@ -4,7 +4,7 @@
 \alias{print.MgDynamic}
 \title{Print a Dynamic Measurement Invariance result}
 \usage{
-\method{print}{MgDynamic}(x, ...)
+\method{print}{MgDynamic}(x, showPlot = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{MgDynamic}.}
