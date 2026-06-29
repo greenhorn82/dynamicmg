@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{An object of class \code{MgDynamic}.}
 
+\item{showPlot}{Whether to create plots or not.}
+
 \item{...}{Additional arguments, currently unused.}
 }
 \description{

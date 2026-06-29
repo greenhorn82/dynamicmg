@@ -1,6 +1,7 @@
 #' Print a Dynamic Measurement Invariance result
 #'
 #' @param x An object of class `MgDynamic`.
+#' @param showPlot Whether to create plots or not.
 #' @param ... Additional arguments, currently unused.
 #'
 #' @export
@@ -42,7 +43,7 @@ print.MgDynamic <- function(x, showPlot = TRUE, ...) {
     if (!is.null(x$fit_indices)) {
         cat("\nFit indices:\n")
         print(x$fit_indices)
-        cat("\nΔFit indices:\n ")
+        cat("\n\u0394Fit indices:\n ")
         print(diff(x$fit_indices))
     }
 
@@ -56,7 +57,7 @@ print.MgDynamic <- function(x, showPlot = TRUE, ...) {
         x$cutoffs |>
             as.data.frame() |>
             tibble::rownames_to_column(var = "measure") |>
-            mutate(measure = stringr::str_replace(measure, "Δ", "")) -> dataCutoff
+            mutate(measure = stringr::str_replace(measure, "\u0394", "")) -> dataCutoff
 
         diff(x$fit_indices) |>
             t() |>

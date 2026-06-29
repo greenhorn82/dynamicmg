@@ -1,9 +1,13 @@
 Package: dynamicmg
-Title: What the Package Does (One Line, Title Case)
+Title: Generating dynamically cutoffs for multi-group measure invariance testing
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+   c(person(given = "Robert",
+             family = "Busching",
+             role = c("aut", "cre"),
+             email = "busching@uni-potsdam.de",
+             comment = c(ORCID = "0000-0001-7522-6053")))
+Description: This package is a port of the code from dmcneish18/DG-DMI into an R function, so that DG-DMI results can be integrated directly into Quarto or Markdown workflows. While Dan McNeish did most of the work, he did not endorse this package.  
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -12,7 +16,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1)
 Imports:
  GenOrd, 
  MASS, 
