@@ -242,6 +242,54 @@ test_that("Fast run - correlated factors + two correllated error terms", {
 })
 
 
+test_that("Three Group model", {
+    tol <- if (Sys.info()[["sysname"]] == "Windows") {
+        1e-6
+    } else {
+        .1
+    }
+
+    testthat::skip_if_not_installed("lavaan")
+    testthat::skip_if_not_installed("dplyr")
+    testthat::skip_if_not_installed("tidyr")
+    testthat::skip_if_not_installed("purrr")
+    testthat::skip_if_not_installed("MASS")
+    testthat::skip_if_not_installed("GenOrd")
+    testthat::skip_if_not_installed("semPlot")
+
+
+    df <- read.table(test_path("testdata", "example1.csv"), header = TRUE, sep = ",")
+    df$F3 <- rep(c(0, 1, 3), each = 100)
+    result <- calcMG(
+        data = df,
+        loadings = list(
+            c("Item1_F1", "Item2_F1", "Item3_F1"),
+            c("Item1_F2", "Item2_F2", "Item3_F2")
+        ),
+        Group = "F3",
+        Inv = 3,
+        Reps = 100,
+        ResCov = list(
+            c("Item1_F1", "Item1_F2"),
+            c("Item2_F1", "Item3_F2")
+        )
+    )
+
+    expect_s3_class(result, "MgDynamic")
+    expect_equal(result$input$Factors, 2L)
+    expect_equal(result$input$Group, "F3")
+    expect_true(is.character(result$model))
+    expect_named(result, c(
+        "input", "call", "model", "fit", "fit_indices", "differences",
+        "decision", "dmacs", "cutoffs", "parameter_tables", "plot",
+        "outputs", "download"
+    ))
+    env <- new.env(parent = emptyenv())
+    appResults <- load(test_path("testdata", "run4.rdata"), envir = env)
+    expect_equal(result$cutoffs, env$Results, tolerance = tol)
+})
+
+
 test_that("calling inner function without input leads to error", {
     df <- example_dmi_data()
 

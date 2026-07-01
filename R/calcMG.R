@@ -927,16 +927,17 @@ calcMgInner <- function(data, input) {
     ###############################
 
     suppressWarnings(D <- lavaan_dmacs(a1))
-    if (ncol(as.data.frame(D$DMACS)) == 1) {
-        D_new <- as.data.frame(D$DMACS)
-        colnames(D_new) <- "f1"
-    }
+    # Removeing cleaning the Output,
+    # if (ncol(as.data.frame(D$DMACS)) == 1) {
+    #     D_new <- as.data.frame(D$DMACS)
+    #     colnames(D_new) <- "f1"
+    # }
+    #
+    # if (ncol(as.data.frame(D$DMACS)) > 1) {
+    #     D_new <- D$DMACS
+    # }
 
-    if (ncol(as.data.frame(D$DMACS)) > 1) {
-        D_new <- D$DMACS
-    }
-
-    output$Dmacs <- D_new
+    output$Dmacs <- D
 
 
     ##########################################################################
@@ -1541,9 +1542,14 @@ calcMgInner <- function(data, input) {
             colnames(datax) <- c(unlist(a@Data@ov.names[[1]]))
         }
 
-        prop <- table(data[, input$Group])[1] / length(data[, input$Group])
+        grp_tab <- prop.table(table(data[[input$Group]]))
 
-        g <- rbinom(n0 * r, 1, prop)
+        g <- sample(
+            names(grp_tab),
+            size = n0 * r,
+            replace = TRUE,
+            prob = as.numeric(grp_tab)
+        )
         datax1 <- cbind(datax, g)
 
         rep <- base::rep(1:r, n0)
